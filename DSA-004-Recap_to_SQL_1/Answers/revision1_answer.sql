@@ -10,18 +10,21 @@
 -- Sort the result set in ascending order on jobtitle.
 -- humanresources.employee table
 
---Answer
-SELECT *
-FROM humanresources.employee;
+SELECT *  
+FROM humanresources.employee  
+ORDER BY jobtitle;
 
 -------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Q2: From the following table person.person write a query in SQL to return all rows and a subset of the columns (firstName, lastName, businessentityid) from the person table in the AdventureWorks database. 
 -- The third column heading is renamed to employee_id. Arranged the output in ascending order by lastname.
 
---Answer
-SELECT firstName, lastName, businessentityid
-FROM person.person;
+SELECT 
+	firstname, 
+	lastname, 
+	businessentityid as employee_id  
+FROM person.person   
+ORDER BY lastname;
 
 -------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -30,11 +33,14 @@ FROM person.person;
 
 -- production.product
 
---Answer
-SELECT productid, productnumber, name AS "productname"
+SELECT 
+	productid, 
+	productnumber, 
+	name AS productname
 FROM production.product
-WHERE sellstartdate IS NOT NULL AND productline = 'T'
-ORDER BY name ASC;
+WHERE sellstartdate IS NOT NULL
+	AND production.product.productline= 'T'
+ORDER BY name;
 
 -------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -43,8 +49,9 @@ ORDER BY name ASC;
 
 -- sales.salesorderheader
 
---Answer
-SELECT customerid, SUM(freight) AS "total freight"
+SELECT 
+	customerid, 
+	SUM(freight) AS total_freight 
 FROM sales.salesorderheader
 GROUP BY customerid
 ORDER BY customerid ASC;
@@ -53,15 +60,17 @@ ORDER BY customerid ASC;
 
 -- Q5:From the following table write a query in SQL to retrieve the number of employees for each City. Return city and number of employees. 
 -- Sort the result in ascending order on city.
+
 -- person.businessentityaddress
 
---Answer
-SELECT pa.city, COUNT(pba.businessentityid) AS "Number of Employees"
-FROM person.businessentityaddress AS pba
-INNER JOIN person.address AS pa
-		ON pa.addressid = pba.addressid
-GROUP BY pa.city
-ORDER BY pa.city ASC;
+SELECT 
+	a.city, 
+	COUNT(b.addressid) num_of_employees 
+FROM person.businessentityaddress AS b
+INNER JOIN person.address AS a  
+        ON b.addressid = a.addressid
+GROUP BY a.city
+ORDER BY a.city;
 
 -------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -70,49 +79,60 @@ ORDER BY pa.city ASC;
 
 -- person.businessentitycontact, person.contacttype, person.person
 
--- Is businessentityid or personid in BusinessEntityContact = businessentityid in Person
-
---Answer
-SELECT pbc.BusinessEntityID, p.LastName, p.FirstName
-FROM person.businessentitycontact AS pbc
-INNER JOIN person.contacttype AS pct
-		ON pct.contacttypeid = pbc.contacttypeid
-INNER JOIN person.person AS p
-		ON pbc.personid = p.businessentityid
-WHERE pct.name = 'Purchasing Manager'
-ORDER BY LastName ASC, FirstName ASC;
+SELECT 
+	pp.businessentityid, 
+	lastname, 
+	firstname
+FROM person.businessentitycontact AS pb 
+INNER JOIN person.contacttype AS pc
+				ON pb.ContactTypeID = pc.ContactTypeID
+INNER JOIN person.person AS pp
+				ON pb.PersonID = pp.BusinessEntityID
+WHERE pc.Name = 'Purchasing Manager'
+ORDER BY
+	lastname, 
+	firstname;
 
 -------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Q7: From the following table sales.salesorderdetail  write a query in  SQL to retrieve the total cost of each salesorderID that exceeds 100000. 
 -- Return SalesOrderID, total cost. Round to 2 decimal place and add the dollar sign at the front.
 
---Answer
-SELECT  SalesOrderID, CONCAT('$ ',ROUND(SUM(salesorderID), 2)) AS "total cost"
-FROM sales.salesorderdetail
+SELECT 
+    salesorderid, 
+    CONCAT('$', ROUND(SUM(orderqty * unitprice),2)) AS order_cost 
+FROM sales.salesorderdetail 
 GROUP BY salesorderid
-HAVING ROUND(SUM(salesorderID), 2) > 100000;
+HAVING SUM(orderqty*unitprice) > 100000.00 
+ORDER BY 
+    salesorderid;
 
 -------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Q8:From the following person.person table write a query in  SQL to retrieve those persons whose last name begins with letter 'R' and firstname end with 'n'. 
 -- Return lastname, and firstname and display the result in ascending order on firstname and descending order on lastname columns.
 
---Answer
-SELECT lastname, firstname
-FROM person.person
-WHERE lastname LIKE 'R%' AND firstname LIKE '%n'
-ORDER BY firstname ASC, lastname DESC;
+SELECT 
+	lastname, 
+	firstname 
+FROM person.person  
+WHERE lastname LIKE 'R%'
+	AND firstname LIKE '%n'
+ORDER BY 
+	firstname ASC, 
+	lastname DESC;
 
 -------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Q9: From the following humanresources.department table write a query in  SQL to skip the first 5 rows and return the next 5 rows from the sorted result set.
 
---Answer
-SELECT *
+SELECT 
+	departmentid, 
+	name, 
+	groupname
 FROM humanresources.department
-ORDER BY departmentid ASC
-OFFSET 5 ROWS
+ORDER BY departmentid   
+OFFSET 5  
 LIMIT 5;
 
 -------------------------------------------------------------------------------------------------------------------------------------------
@@ -122,12 +142,17 @@ LIMIT 5;
 
 -- person.person, person.personphone
 
---Answer
-SELECT p.BusinessEntityID, p.FirstName, p.LastName, pp.PhoneNumber
-FROM person.person AS p
-INNER JOIN person.personphone AS pp
-		ON pp.businessentityid = p.businessentityid
-WHERE lastname LIKE 'L%'
-ORDER BY p.lastname ASC, p.firstname ASC;
+SELECT 
+	person.businessentityid,
+	person.firstname,
+	person.lastname,
+	personphone.phonenumber
+FROM person.person AS person
+INNER JOIN person.personphone AS personphone
+				ON person.businessentityid = personphone.businessentityid
+WHERE person.lastname LIKE 'L%'
+ORDER BY
+	person.firstname,
+	person.lastname;
 
 -------------------------------------------------------------------------------------------------------------------------------------------

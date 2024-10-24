@@ -3,32 +3,11 @@
 -- Remeber to create your schema called myownschema!
 --------------------------------------------------------------------------------------------------------------------------------------------------
 
--- Hi Lacsado Shaniah Santiago
-/*
-	Best Practices
-	1. CLAUSES/FUNCTION are put in UPPERCASE to indicate SQL Language
-
-	
-	-- Using UNION ALL, returns all values. Using UNION, returns values (no duplicates)
-	-- Base on computation power and efficiency, UNION ALL is much faster as there is no need to consider for duplicates
-	-- Compared to UNION that does not return duplicates values.
-
-	-- Levels of Query
-	SELECT
-	FROM
-	WHERE (conditional)
-	GROUP BY
-	HAVING (aggregation clauses)
-	ORDER BY
-
-*/
 -- CREATE SCHEMA myownschema;
 
 --------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Run this once!
-DROP TABLE myownschema.numbers;
-
 CREATE TABLE myownschema.numbers (
 	index INT
 );
@@ -61,13 +40,15 @@ col1 col2 col3
 10   11   12
 */
 
--- Answer
-SELECT *
-FROM myownschema.numbers AS t1
-INNER JOIN myownschema.numbers AS t2
-		ON t1.index + 1 = t2.index
-INNER JOIN myownschema.numbers AS t3
-		ON t2.index + 1 = t3.index
+SELECT 
+	num1.index AS number1,
+	num2.index AS number2,
+	num3.index AS number3,
+FROM myownschema.numbers AS num1
+INNER JOIN myownschema.numbers AS num2
+			  ON num1.index + 1 = num2.index
+INNER JOIN myownschema.numbers AS num3
+			  ON num1.index + 2 = num3.index;
 --------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Run these once!
@@ -82,56 +63,62 @@ VALUES (
 );
 
 -- Explore the table:
-DROP TABLE myownschema.stars;
-
 SELECT *
 FROM myownschema.stars;
 
 -- Q2: Form a triangle that has three rows, 3 stars at the top row and 1 star at the bottom row and rectangle with 3 rows and 2 columns using this table only.
 
 -- Rectangle Answer:
-(
-SELECT *
-FROM myownschema.stars AS s1
-INNER JOIN myownschema.stars AS s2 
-		ON s1.star = s2.star
-)
-UNION ALL
-(
-SELECT *
-FROM myownschema.stars AS s1
-INNER JOIN myownschema.stars AS s2 
-		ON s1.star = s2.star
-)
-UNION ALL
-(
-SELECT *
-FROM myownschema.stars AS s1
-INNER JOIN myownschema.stars AS s2 
-		ON s1.star = s2.star
-);
 
--- Triangle Answer:
-(
 SELECT *
-FROM myownschema.stars AS s1
-INNER JOIN myownschema.stars AS s2
-		ON s1.star = s2.star
-INNER JOIN myownschema.stars AS s3
-		ON s2.star = s3.star
-)
+FROM myownschema.stars AS firststar
+LEFT JOIN myownschema.stars AS secondstar
+			 ON firststar.star = secondstar.star
+
 UNION ALL
-(
-SELECT *,'' AS blank
-FROM myownschema.stars AS s1
-INNER JOIN myownschema.stars AS s2
-		ON s1.star = s2.star
-)
+
+SELECT *
+FROM myownschema.stars AS firststar
+LEFT JOIN myownschema.stars AS secondstar
+			 ON firststar.star = secondstar.star
+
 UNION ALL
-(
-SELECT *,'' AS blank1, '' AS blank2
-FROM myownschema.stars
-);
+
+SELECT *
+FROM myownschema.stars AS firststar
+LEFT JOIN myownschema.stars AS secondstar
+			 ON firststar.star = secondstar.star;
+
+-- Triangle Answer: 
+
+SELECT 
+	firststar.star,
+	secondstar.star,
+	thirdstar.star
+FROM myownschema.stars AS firststar
+LEFT JOIN myownschema.stars AS secondstar
+			 ON firststar.star = secondstar.star
+LEFT JOIN myownschema.stars AS thirdstar
+			 ON firststar.star = thirdstar.star
+			 
+UNION ALL
+
+SELECT 
+	firststar.star,
+	secondstar.star,
+	'' AS blank
+FROM myownschema.stars AS firststar
+LEFT JOIN myownschema.stars AS secondstar
+			 ON firststar.star = secondstar.star
+			 
+UNION ALL
+
+SELECT 
+	firststar.star,
+	'' AS blank1,
+	'' AS blank2
+FROM myownschema.stars AS firststar;
+
 --------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Q3:
@@ -150,8 +137,6 @@ FROM myownschema.stars
 -- The analyst is interested in the activation rate of specific users in the emails table, which may not include all users that could potentially be found in the texts table.
 -- For example, user 123 in the emails table may not be in the texts table and vice versa.
 
--- DROP TABLE myownschema.emails;
--- DROP TABLE myownschema.texts;
 -- Create emails table
 CREATE TABLE myownschema.emails (
     email_id INT,
@@ -187,12 +172,15 @@ FROM myownschema.emails;
 SELECT *
 FROM myownschema.texts;
 
--- Answer:
-SELECT e.email_id, ROUND((COUNT(CASE WHEN t.signup_action = 'Confirmed' THEN 1 END)/COUNT(t.signup_action))*100,2) AS "activation rate"
-FROM myownschema.emails AS e
-INNER JOIN myownschema.texts AS t
-		ON e.email_id = t.email_id
-GROUP BY e.email_id;
+SELECT 
+  ROUND(
+		CAST(COUNT(texts.email_id) AS decimal) / COUNT(DISTINCT emails.email_id),
+		2
+	) AS activation_rate
+FROM myownschema.emails
+LEFT JOIN myownschema.texts
+       ON emails.email_id = texts.email_id
+      AND texts.signup_action= 'Confirmed';
 
 --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -206,8 +194,6 @@ GROUP BY e.email_id;
 -- then it should remain as Order ID 7 in the corrected data.
 
 -- In the results, return the correct pairs of order IDs and items.
-
--- DROP TABLE myownschema.zomato_orders;
 
 CREATE TABLE myownschema.zomato_orders (
     order_id INT,
@@ -229,19 +215,21 @@ SELECT *
 FROM myownschema.zomato_orders;
 
 -- Answer:
-SELECT wrong.order_id AS corrected_order_id,
-	CASE 
-		WHEN t2.order_id IS NULL AND t1.order_id IS NULL THEN wrong.item
-    	WHEN t1.order_id IS NULL AND t2.order_id IS NOT NULL THEN t2.item
-    	WHEN t2.order_id IS NULL AND t1.order_id IS NOT NULL THEN t1.item
-	END AS item
+SELECT
+  wrong.order_id AS corrected_order_id,
+  CASE 
+    WHEN t2.order_id IS NULL AND t1.order_id IS NULL THEN wrong.item
+    WHEN t1.order_id IS NULL AND t2.order_id IS NOT NULL THEN t2.item
+    WHEN t2.order_id IS NULL AND t1.order_id IS NOT NULL THEN t1.item
+  END AS item
 FROM myownschema.zomato_orders AS wrong 
-LEFT JOIN myownschema.zomato_orders AS t1
-	ON wrong.order_id = (t1.order_id + 1)
-	AND t1.order_id % 2 = 1
+LEFT JOIN myownschema.zomato_orders AS t1 
+	   ON wrong.order_id = (t1.order_id + 1)
+      AND t1.order_id % 2 = 1
 LEFT JOIN myownschema.zomato_orders AS t2
-	ON wrong.order_id = (t2.order_id - 1)
-	AND t2.order_id %2 = 0;
+	   ON wrong.order_id = (t2.order_id - 1)
+	  AND t2.order_id % 2 = 0;
+
 --------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Q5:
@@ -271,12 +259,15 @@ FROM myownschema.user_transactions;
 
 -- Answer:
 SELECT 
-	EXTRACT(YEAR FROM transaction_date) AS year,
-	product_id,
-	spend AS "current year spend",
-	LAG(spend) OVER(PARTITION BY product_id ORDER BY EXTRACT(YEAR FROM transaction_date)ASC) AS "previous year spend",
-	ROUND(100.0 * spend / LAG(spend) OVER(PARTITION BY product_id ORDER BY EXTRACT(YEAR FROM transaction_date)ASC) - 100, 2) AS "year on year growth %"
-FROM myownschema.user_transactions;
+  EXTRACT(YEAR FROM transaction_date) AS year,
+  product_id,
+  spend AS curr_year_spend,
+  LAG(spend) OVER(PARTITION BY product_id ORDER BY EXTRACT(YEAR FROM transaction_date)ASC) AS prev_year_spend,
+  ROUND(
+  	100.0 * spend / LAG(spend) OVER(PARTITION BY product_id ORDER BY EXTRACT(YEAR FROM transaction_date) ASC) - 100,
+		2
+  ) AS yoy_rate
+from myownschema.user_transactions;
 
 --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -349,25 +340,35 @@ SELECT *
 FROM myownschema.actor;
 
 -- Answers:
-WITH total_table AS (
-	SELECT
-		store_id,
-		customer_id,
-		COUNT(*) AS orders,
-
-		DENSE_RANK() OVER(PARTITION BY customer_id ORDER BY COUNT(*) DESC) AS rank -- DENSE_RANK() 1 2 2 3
-		-- RANK(), -- 1 2 2 (<--come at the same time) 4
-		-- ROW_NUMBER() -- 1 2 3 4
-
-	FROM myownschema.orders
-	GROUP BY 1,2
+WITH actor_ratings AS (
+    SELECT
+        renting.customer_id,
+        renting.customer_name,
+        renting.customer_age,
+        renting.customer_address,
+        actor.actor_name,
+        actor.movie_name,
+        renting.rating,
+        ROW_NUMBER() OVER (PARTITION BY renting.customer_id ORDER BY renting.rating DESC) AS ranking
+    FROM myownschema.renting AS renting
+    INNER JOIN myownschema.actsin AS actsin
+						ON renting.rental_id = actsin.rental_id
+    INNER JOIN myownschema.actor AS actor
+      		ON actsin.actor_id = actor.actor_id
 )
 
-SELECT c.name, tt.store_id, tt.orders, tt.rank
-FROM myownschema.customer AS c
-INNER JOIN total_table AS tt
-		ON c.customer_id = tt.customer_id;
-
+SELECT
+    customer_id,
+    customer_name,
+    movie_name,
+    actor_name,
+    rating,
+    ranking
+FROM actor_ratings
+WHERE ranking <= 3
+ORDER BY 
+	customer_id, 
+	ranking;
 
 --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -452,4 +453,23 @@ SELECT *
 FROM myownschema.orders;
 
 -- Answer:
-	
+WITH total_orders AS (
+	SELECT
+		store_id,
+		customer_id,
+		COUNT(*) AS orders,
+		DENSE_RANK() OVER(PARTITION BY customer_id ORDER BY COUNT(*) DESC) AS rank
+	FROM myownschema.orders
+	GROUP BY 
+		store_id,
+		customer_id
+)
+
+SELECT
+	customer.name,
+	total_orders.orders,
+	total_orders.rank
+FROM myownschema.customer AS customer
+LEFT JOIN total_orders
+       ON total_orders.customer_id = customer.customer_id
+WHERE total_orders.rank <=3;		
