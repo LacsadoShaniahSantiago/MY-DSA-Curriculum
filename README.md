@@ -11,6 +11,19 @@
   git branch -d branch-name       #delete branch
 }
 ```
+#Pipeline Installation for VSCode
+```
+{
+  "Under VSCode Terminal"
+  pip install pipenv
+  pipenv install
+  pipenv shell
+
+  "Remove % and run in VSCode Terminal"
+   %pipenv install langchain langchain_core langchain_openai langchain-community langchain_text_splitters openai pypdf python-dotenv numpy scikit-learn matplotlib scikit-learn scipy beautifulsoup4 pypdf chroma langgraph typing typing_extensions 
+
+}
+```
 # The DSA Curriculum
 This repository is for the excos to upload their curriculum materials for future sub-comms to use. Please feel free to fork this repository for your own use!
 
