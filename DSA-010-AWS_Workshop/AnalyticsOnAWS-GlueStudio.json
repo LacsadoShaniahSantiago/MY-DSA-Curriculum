@@ -1,0 +1,346 @@
+{
+	"jobConfig": {
+		"name": "AnalyticsOnAWS-GlueStudio",
+		"description": "",
+		"role": "arn:aws:iam::257074594370:role/AnalyticsworkshopGlueRole",
+		"command": "glueetl",
+		"version": "4.0",
+		"runtime": null,
+		"workerType": "G.1X",
+		"numberOfWorkers": 2,
+		"maxCapacity": 2,
+		"jobRunQueuingEnabled": false,
+		"maxRetries": 1,
+		"timeout": 10,
+		"maxConcurrentRuns": 1,
+		"security": "none",
+		"scriptName": "AnalyticsOnAWS-GlueStudio.py",
+		"scriptLocation": "s3://aws-glue-assets-257074594370-us-east-1/scripts/",
+		"language": "python-3",
+		"spark": true,
+		"sparkConfiguration": "standard",
+		"jobParameters": [],
+		"tags": [],
+		"jobMode": "VISUAL_MODE",
+		"createdOn": "2024-11-12T13:40:09.754Z",
+		"developerMode": false,
+		"connectionsList": [],
+		"temporaryDirectory": "s3://aws-glue-assets-257074594370-us-east-1/temporary/",
+		"logging": true,
+		"glueHiveMetastore": true,
+		"etlAutoTuning": true,
+		"metrics": true,
+		"observabilityMetrics": true,
+		"bookmark": "job-bookmark-disable",
+		"sparkPath": "s3://aws-glue-assets-257074594370-us-east-1/sparkHistoryLogs/",
+		"flexExecution": false,
+		"minFlexWorkers": null,
+		"maintenanceWindow": null
+	},
+	"dag": {
+		"node-1731417873529": {
+			"nodeId": "node-1731417873529",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1731417838205"
+			],
+			"name": "Change Schema",
+			"generatedNodeName": "ChangeSchema_node1731417873529",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "track_id",
+					"fromPath": [
+						"track_id"
+					],
+					"toType": "int",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "track_name",
+					"fromPath": [
+						"track_name"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "artist_name",
+					"fromPath": [
+						"artist_name"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1731417784565": {
+			"nodeId": "node-1731417784565",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [],
+			"name": "Amazon S3",
+			"generatedNodeName": "AmazonS3_node1731417784565",
+			"classification": "DataSource",
+			"type": "S3",
+			"isCatalog": true,
+			"database": "analyticsworkshopdb",
+			"table": "raw",
+			"partitionPredicate": "",
+			"additionalOptions": {
+				"boundedSize": null,
+				"boundedFiles": null,
+				"boundedOption": null
+			},
+			"calculatedType": "CatalogS3DataSource",
+			"runtimeParameters": [],
+			"codeGenVersion": 2
+		},
+		"node-1731418560289": {
+			"nodeId": "node-1731418560289",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1731418014493"
+			],
+			"name": "Amazon S3",
+			"generatedNodeName": "AmazonS3_node1731418560289",
+			"classification": "DataSink",
+			"type": "S3",
+			"streamingBatchInterval": 100,
+			"format": "glueparquet",
+			"compression": "snappy",
+			"path": "s3://lacsadoshaniah-analytics-workshop-bucket/data/processed-data2/",
+			"partitionKeys": [],
+			"schemaChangePolicy": {
+				"enableUpdateCatalog": true,
+				"updateBehavior": "UPDATE_IN_DATABASE",
+				"database": "analyticsworkshopdb",
+				"table": "processed-data2"
+			},
+			"updateCatalogOptions": "schemaAndPartitions",
+			"autoDataQuality": {
+				"isEnabled": false,
+				"evaluationContext": null
+			},
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1731418014493": {
+			"nodeId": "node-1731418014493",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1731417936530"
+			],
+			"name": "Change Schema",
+			"generatedNodeName": "ChangeSchema_node1731418014493",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "track_id",
+					"fromPath": [
+						"track_id"
+					],
+					"toType": "string",
+					"fromType": "int",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "partition_2",
+					"fromPath": [
+						"partition_2"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "activity_type",
+					"fromPath": [
+						"activity_type"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": ".track_id",
+					"fromPath": [
+						".track_id"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "partition_1",
+					"fromPath": [
+						"partition_1"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "device_temp",
+					"fromPath": [
+						"device_temp"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "track_name",
+					"fromPath": [
+						"track_name"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "artist_name",
+					"fromPath": [
+						"artist_name"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "partition_3",
+					"fromPath": [
+						"partition_3"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "device_ts",
+					"fromPath": [
+						"device_ts"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "device_id",
+					"fromPath": [
+						"device_id"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "partition_0",
+					"fromPath": [
+						"partition_0"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "uuid",
+					"fromPath": [
+						"uuid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1731417838205": {
+			"nodeId": "node-1731417838205",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [],
+			"name": "Amazon S3",
+			"generatedNodeName": "AmazonS3_node1731417838205",
+			"classification": "DataSource",
+			"type": "S3",
+			"isCatalog": true,
+			"database": "analyticsworkshopdb",
+			"table": "reference_data",
+			"partitionPredicate": "",
+			"additionalOptions": {
+				"boundedSize": null,
+				"boundedFiles": null,
+				"boundedOption": null
+			},
+			"calculatedType": "CatalogS3DataSource",
+			"runtimeParameters": [],
+			"codeGenVersion": 2
+		},
+		"node-1731417936530": {
+			"nodeId": "node-1731417936530",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1731417784565",
+				"node-1731417873529"
+			],
+			"name": "Join",
+			"generatedNodeName": "Join_node1731417936530",
+			"classification": "Transform",
+			"type": "Join",
+			"joinType": "equijoin",
+			"columns": [
+				{
+					"from": "node-1731417784565",
+					"keys": [
+						"track_id"
+					]
+				},
+				{
+					"from": "node-1731417873529",
+					"keys": [
+						"track_id"
+					]
+				}
+			],
+			"columnConditions": [
+				"="
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		}
+	},
+	"hasBeenSaved": false,
+	"usageProfileName": null
+}
